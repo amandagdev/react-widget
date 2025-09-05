@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import type { Post, User } from "../../data/mock-data";
-import { mockPosts, mockUser } from "../../data/mock-data";
+import type { Post, User } from "../../services/api";
+import { getUser, getUserPosts } from "../../services/api";
+import {
+  listenForUserId,
+  requestUserId,
+  sendCloseMessage,
+} from "../../services/postMessage";
 import ErrorWidget from "../error-widget/error-widget";
 import LoadingWidget from "../loading-widget/loading-widget";
 import ScrollIndicator from "../scroll-indicator/scroll-indicator";
@@ -19,28 +24,17 @@ const UserWidget: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Verificar se estamos em um iframe
         const isInIframe = window !== window.parent;
 
         if (isInIframe) {
-          // Solicitar o ID do usuário via postMessage
-          window.parent.postMessage({ type: "REQUEST_USER_ID" }, "*");
+          requestUserId();
 
-          // Escutar a resposta
-          const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "USER_ID_RESPONSE" && event.data.userId) {
-              loadUserData(event.data.userId);
-            }
-          };
+          const removeListener = listenForUserId((userId) => {
+            loadUserData(userId);
+          });
 
-          window.addEventListener("message", handleMessage);
-
-          // Cleanup
-          return () => {
-            window.removeEventListener("message", handleMessage);
-          };
+          return removeListener;
         } else {
-          // Se não estiver em iframe, usar usuário padrão para teste
           loadUserData(1);
         }
       } catch {
@@ -52,14 +46,18 @@ const UserWidget: React.FC = () => {
     fetchData();
   }, []);
 
-  const loadUserData = async (_userId: number) => {
+  const loadUserData = async (userId: number) => {
     try {
-      // Simular delay de carregamento
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setLoading(true);
+      setError(null);
 
-      // Usar dados mock
-      setUser(mockUser);
-      setPosts(mockPosts);
+      const [userData, postsData] = await Promise.all([
+        getUser(userId),
+        getUserPosts(userId),
+      ]);
+
+      setUser(userData);
+      setPosts(postsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
     } finally {
@@ -68,13 +66,11 @@ const UserWidget: React.FC = () => {
   };
 
   const handleClose = () => {
-    // Verificar se estamos em um iframe
     const isInIframe = window !== window.parent;
 
     if (isInIframe) {
-      window.parent.postMessage({ type: "CLOSE_WIDGET" }, "*");
+      sendCloseMessage();
     } else {
-      // Se não estiver em iframe, apenas recarregar a página
       window.location.reload();
     }
   };
@@ -88,6 +84,9 @@ const UserWidget: React.FC = () => {
       <ErrorWidget error={error} onRetry={() => window.location.reload()} />
     );
   }
+
+  console.log("user", user);
+  console.log("posts", posts);
 
   return (
     <div className="w-80 h-[600px] bg-widget-green-dark rounded-lg flex flex-col overflow-hidden">

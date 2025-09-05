@@ -1,5 +1,5 @@
 import React from "react";
-import type { Post } from "../../data/mock-data";
+import type { Post } from "../../services/api";
 
 interface WidgetContentProps {
   posts: Post[];
@@ -14,7 +14,7 @@ const WidgetContent: React.FC<WidgetContentProps> = ({ posts }) => {
           className="bg-widget-green-light rounded-lg p-3 text-white hover:bg-widget-green transition-colors cursor-pointer"
         >
           <h3 className="font-bold text-sm mb-2 line-clamp-2">{post.title}</h3>
-          <p className="text-xs opacity-90 line-clamp-3">{post.description}</p>
+          <p className="text-xs opacity-90 line-clamp-3">{post.body}</p>
         </div>
       ))}
     </div>

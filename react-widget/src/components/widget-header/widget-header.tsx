@@ -1,5 +1,5 @@
 import React from "react";
-import type { User } from "../../data/mock-data";
+import type { User } from "../../services/api";
 
 interface WidgetHeaderProps {
   user: User;
