@@ -1,5 +1,12 @@
 # Widget React
 
+<img width="3006" height="1452" alt="Captura de Tela 2025-09-05 às 13 55 31" src="https://github.com/user-attachments/assets/974663f8-307e-42bf-b88a-fb95f2d288b8" />
+
+
+<img width="2994" height="1452" alt="Captura de Tela 2025-09-05 às 13 55 23" src="https://github.com/user-attachments/assets/852edd6e-3c8d-4764-8be0-306ddbf62316" />
+
+
+
 ## Como rodar o projeto
 
 ### 1. Instalar dependências
